@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Oryn">
+<meta name="theme-color" content="#0a0a0f">
+<title>Oryn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: rgba(255,255,255,0.07);
+    --accent: #6c63ff;
+    --accent-dim: rgba(108,99,255,0.15);
+    --accent-glow: rgba(108,99,255,0.35);
+    --text: #f0eff8;
+    --text-muted: rgba(240,239,248,0.45);
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-display);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+    padding: env(safe-area-inset-top, 20px) 24px env(safe-area-inset-bottom, 20px);
+    position: relative;
+  }
+
+  /* Ambient background orb */
+  .orb {
+    position: fixed;
+    width: 480px;
+    height: 480px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(108,99,255,0.18) 0%, rgba(108,99,255,0.04) 50%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -56%);
+    pointer-events: none;
+    animation: breathe 6s ease-in-out infinite;
+  }
+
+  @keyframes breathe {
+    0%, 100% { opacity: 0.7; transform: translate(-50%, -56%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%, -56%) scale(1.08); }
+  }
+
+  /* Subtle grid texture */
+  .grid {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+  }
+
+  .container {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  /* Wordmark */
+  .wordmark {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    margin-bottom: 48px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  /* Main identity block */
+  .identity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 56px;
+    animation: fadeUp 0.8s ease 0.1s both;
+  }
+
+  .name {
+    font-size: 72px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    background: linear-gradient(135deg, #f0eff8 30%, rgba(108,99,255,0.9) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .tagline {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    font-family: var(--font-mono);
+  }
+
+  /* Widget container */
+  .widget-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    animation: fadeUp 0.8s ease 0.2s both;
+    margin-bottom: 40px;
+  }
+
+  /* ElevenLabs widget override styles */
+  elevenlabs-convai {
+    --el-widget-bg: var(--surface);
+    --el-widget-border: var(--border);
+  }
+
+  /* Status line */
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    animation: fadeUp 0.8s ease 0.3s both;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
+    50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(74,222,128,0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Install prompt — shows only when not in standalone mode */
+  .install-hint {
+    position: fixed;
+    bottom: calc(env(safe-area-inset-bottom, 16px) + 16px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    white-space: nowrap;
+    z-index: 100;
+    animation: fadeUp 1s ease 1.5s both;
+  }
+
+  .install-hint span {
+    color: var(--accent);
+  }
+
+  /* Hide install hint if already in standalone / PWA mode */
+  @media (display-mode: standalone) {
+    .install-hint { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="orb"></div>
+<div class="grid"></div>
+
+<div class="container">
+  <div class="wordmark">Personal AI</div>
+
+  <div class="identity">
+    <div class="name">Oryn</div>
+    <div class="tagline">// always listening</div>
+  </div>
+
+  <div class="widget-wrap">
+    <elevenlabs-convai agent-id="agent_7801kswsdzz3ew9scaeytn8065xa"></elevenlabs-convai>
+  </div>
+
+  <div class="status">
+    <div class="status-dot"></div>
+    <span>Ready</span>
+  </div>
+</div>
+
+<div class="install-hint">Tap <span>Share → Add to Home Screen</span> to pin Oryn</div>
+
+<script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+
+</body>
+</html>
