@@ -16,218 +16,410 @@
 
   :root {
     --bg: #0a0a0f;
-    --surface: #111118;
+    --surface: #13131a;
     --border: rgba(255,255,255,0.07);
     --accent: #6c63ff;
-    --accent-dim: rgba(108,99,255,0.15);
-    --accent-glow: rgba(108,99,255,0.35);
     --text: #f0eff8;
-    --text-muted: rgba(240,239,248,0.45);
-    --font-display: 'Syne', sans-serif;
-    --font-mono: 'DM Mono', monospace;
+    --text-muted: rgba(240,239,248,0.4);
+    --green: #4ade80;
+    --red: #f87171;
   }
 
   html, body {
     height: 100%;
     background: var(--bg);
     color: var(--text);
-    font-family: var(--font-display);
+    font-family: 'Syne', sans-serif;
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
+    user-select: none;
   }
 
   body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     min-height: 100dvh;
-    padding: env(safe-area-inset-top, 20px) 24px env(safe-area-inset-bottom, 20px);
-    position: relative;
+    padding: max(env(safe-area-inset-top), 48px) 32px max(env(safe-area-inset-bottom), 48px);
   }
 
-  /* Ambient background orb */
+  /* Background orb */
   .orb {
     position: fixed;
-    width: 480px;
-    height: 480px;
+    width: 600px;
+    height: 600px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(108,99,255,0.18) 0%, rgba(108,99,255,0.04) 50%, transparent 70%);
+    background: radial-gradient(circle, rgba(108,99,255,0.14) 0%, transparent 65%);
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -56%);
+    transform: translate(-50%, -50%);
     pointer-events: none;
-    animation: breathe 6s ease-in-out infinite;
+    transition: opacity 1s ease;
   }
+  .orb.active { opacity: 1.5; }
 
-  @keyframes breathe {
-    0%, 100% { opacity: 0.7; transform: translate(-50%, -56%) scale(1); }
-    50% { opacity: 1; transform: translate(-50%, -56%) scale(1.08); }
-  }
-
-  /* Subtle grid texture */
+  /* Grid */
   .grid {
     position: fixed;
     inset: 0;
     background-image:
-      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-    background-size: 48px 48px;
+      linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+    background-size: 52px 52px;
     pointer-events: none;
-    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
-    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 20%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 20%, transparent 100%);
   }
 
-  .container {
-    position: relative;
-    z-index: 10;
+  /* Top section */
+  .top {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0;
-    width: 100%;
-    max-width: 360px;
+    gap: 8px;
+    z-index: 10;
+    animation: fadeUp 0.7s ease both;
   }
 
-  /* Wordmark */
   .wordmark {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 500;
-    letter-spacing: 0.3em;
+    letter-spacing: 0.35em;
     text-transform: uppercase;
     color: var(--text-muted);
-    font-family: var(--font-mono);
-    margin-bottom: 48px;
-    animation: fadeUp 0.8s ease both;
-  }
-
-  /* Main identity block */
-  .identity {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 56px;
-    animation: fadeUp 0.8s ease 0.1s both;
+    font-family: 'DM Mono', monospace;
   }
 
   .name {
-    font-size: 72px;
+    font-size: 64px;
     font-weight: 800;
     letter-spacing: -0.03em;
     line-height: 1;
-    background: linear-gradient(135deg, #f0eff8 30%, rgba(108,99,255,0.9) 100%);
+    background: linear-gradient(140deg, #f0eff8 40%, rgba(108,99,255,0.85) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  .tagline {
+  /* Centre — the big button */
+  .centre {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    z-index: 10;
+    animation: fadeUp 0.7s ease 0.15s both;
+  }
+
+  .btn-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Pulse rings — only animate when idle/ready */
+  .ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(108,99,255,0.25);
+    animation: ringPulse 3s ease-out infinite;
+    opacity: 0;
+  }
+  .ring:nth-child(1) { width: 180px; height: 180px; animation-delay: 0s; }
+  .ring:nth-child(2) { width: 220px; height: 220px; animation-delay: 0.8s; }
+  .ring:nth-child(3) { width: 260px; height: 260px; animation-delay: 1.6s; }
+
+  @keyframes ringPulse {
+    0% { opacity: 0; transform: scale(0.85); }
+    30% { opacity: 1; }
+    100% { opacity: 0; transform: scale(1.1); }
+  }
+
+  /* Active state — solid breathing rings */
+  .btn-wrap.listening .ring {
+    animation: none;
+    opacity: 0;
+  }
+  .btn-wrap.listening .ring:nth-child(1) {
+    opacity: 0.6;
+    animation: breatheRing 1.2s ease-in-out infinite;
+    border-color: rgba(74,222,128,0.5);
+  }
+  .btn-wrap.speaking .ring:nth-child(1) {
+    opacity: 0.6;
+    animation: breatheRing 0.8s ease-in-out infinite;
+    border-color: rgba(108,99,255,0.6);
+  }
+  .btn-wrap.speaking .ring:nth-child(2) {
+    opacity: 0.35;
+    animation: breatheRing 0.8s ease-in-out infinite 0.2s;
+    border-color: rgba(108,99,255,0.4);
+  }
+
+  @keyframes breatheRing {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+
+  /* The button itself */
+  .talkbtn {
+    position: relative;
+    z-index: 2;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 1px solid rgba(108,99,255,0.3);
+    background: var(--surface);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.15s ease, background 0.3s ease, border-color 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+  }
+
+  .talkbtn:active { transform: scale(0.94); }
+
+  .talkbtn.listening {
+    background: rgba(74,222,128,0.08);
+    border-color: rgba(74,222,128,0.4);
+  }
+  .talkbtn.speaking {
+    background: rgba(108,99,255,0.12);
+    border-color: rgba(108,99,255,0.5);
+  }
+  .talkbtn.connecting {
+    background: rgba(251,191,36,0.08);
+    border-color: rgba(251,191,36,0.3);
+  }
+
+  /* Mic icon */
+  .mic-icon {
+    width: 36px;
+    height: 36px;
+    transition: opacity 0.3s ease;
+  }
+
+  .btn-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    transition: color 0.3s ease;
+  }
+
+  .talkbtn.listening .btn-label { color: var(--green); }
+  .talkbtn.speaking .btn-label { color: var(--accent); }
+  .talkbtn.connecting .btn-label { color: #fbbf24; }
+
+  /* Status text */
+  .status-text {
     font-size: 13px;
-    font-weight: 400;
+    font-family: 'DM Mono', monospace;
     color: var(--text-muted);
     letter-spacing: 0.04em;
-    font-family: var(--font-mono);
+    min-height: 20px;
+    text-align: center;
+    transition: opacity 0.4s ease;
   }
 
-  /* Widget container */
-  .widget-wrap {
-    width: 100%;
+  /* Bottom section */
+  .bottom {
     display: flex;
-    justify-content: center;
-    animation: fadeUp 0.8s ease 0.2s both;
-    margin-bottom: 40px;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    z-index: 10;
+    animation: fadeUp 0.7s ease 0.3s both;
   }
 
-  /* ElevenLabs widget override styles */
-  elevenlabs-convai {
-    --el-widget-bg: var(--surface);
-    --el-widget-border: var(--border);
-  }
-
-  /* Status line */
-  .status {
+  /* End call button — hidden until active */
+  .end-btn {
     display: flex;
     align-items: center;
     gap: 8px;
+    padding: 10px 24px;
+    border-radius: 100px;
+    border: 1px solid rgba(248,113,113,0.3);
+    background: rgba(248,113,113,0.08);
+    color: var(--red);
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    pointer-events: none;
+  }
+  .end-btn.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .mic-permission-note {
     font-size: 11px;
-    font-family: var(--font-mono);
+    font-family: 'DM Mono', monospace;
     color: var(--text-muted);
-    animation: fadeUp 0.8s ease 0.3s both;
-  }
-
-  .status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #4ade80;
-    animation: pulse 2.5s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
-    50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(74,222,128,0); }
+    opacity: 0.6;
+    text-align: center;
+    max-width: 260px;
+    line-height: 1.6;
   }
 
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
+    from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* Install prompt — shows only when not in standalone mode */
-  .install-hint {
-    position: fixed;
-    bottom: calc(env(safe-area-inset-bottom, 16px) + 16px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 10px 16px;
-    font-size: 11px;
-    font-family: var(--font-mono);
-    color: var(--text-muted);
-    white-space: nowrap;
-    z-index: 100;
-    animation: fadeUp 1s ease 1.5s both;
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
-
-  .install-hint span {
-    color: var(--accent);
-  }
-
-  /* Hide install hint if already in standalone / PWA mode */
-  @media (display-mode: standalone) {
-    .install-hint { display: none; }
-  }
+  .spinning { animation: spin 1s linear infinite; }
 </style>
 </head>
 <body>
 
-<div class="orb"></div>
+<div class="orb" id="orb"></div>
 <div class="grid"></div>
 
-<div class="container">
+<!-- Top -->
+<div class="top">
   <div class="wordmark">Personal AI</div>
-
-  <div class="identity">
-    <div class="name">Oryn</div>
-    <div class="tagline">// always listening</div>
-  </div>
-
-  <div class="widget-wrap">
-    <elevenlabs-convai agent-id="agent_7801kswsdzz3ew9scaeytn8065xa" expand="true" start-call-on-connect="false"></elevenlabs-convai>
-  </div>
-
-  <div class="status">
-    <div class="status-dot"></div>
-    <span>Ready</span>
-  </div>
+  <div class="name">Oryn</div>
 </div>
 
-<div class="install-hint">Tap <span>Share → Add to Home Screen</span> to pin Oryn</div>
+<!-- Centre -->
+<div class="centre">
+  <div class="btn-wrap" id="btnWrap">
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <div class="ring"></div>
+    <button class="talkbtn" id="talkBtn" onclick="handleTap()">
+      <svg class="mic-icon" id="micIcon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="13" y="4" width="10" height="18" rx="5" fill="rgba(240,239,248,0.7)"/>
+        <path d="M8 18c0 5.523 4.477 10 10 10s10-4.477 10-10" stroke="rgba(240,239,248,0.7)" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <line x1="18" y1="28" x2="18" y2="33" stroke="rgba(240,239,248,0.7)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="13" y1="33" x2="23" y2="33" stroke="rgba(240,239,248,0.7)" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="btn-label" id="btnLabel">Tap to talk</span>
+    </button>
+  </div>
+  <div class="status-text" id="statusText">Ready</div>
+</div>
 
-<script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+<!-- Bottom -->
+<div class="bottom">
+  <button class="end-btn" id="endBtn" onclick="endCall()">
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+      <line x1="1" y1="1" x2="11" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="11" y1="1" x2="1" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    End conversation
+  </button>
+  <div class="mic-permission-note" id="permNote">Allow microphone access when prompted</div>
+</div>
+
+<script type="module">
+  import { Conversation } from 'https://esm.sh/@elevenlabs/client@latest';
+
+  const AGENT_ID = 'agent_7801kswsdzz3ew9scaeytn8065xa';
+
+  let conversation = null;
+  let state = 'idle'; // idle | connecting | listening | speaking
+
+  const talkBtn = document.getElementById('talkBtn');
+  const btnWrap = document.getElementById('btnWrap');
+  const btnLabel = document.getElementById('btnLabel');
+  const statusText = document.getElementById('statusText');
+  const endBtn = document.getElementById('endBtn');
+  const permNote = document.getElementById('permNote');
+  const orb = document.getElementById('orb');
+
+  function setState(s) {
+    state = s;
+    talkBtn.className = 'talkbtn ' + (s !== 'idle' ? s : '');
+    btnWrap.className = 'btn-wrap ' + (s !== 'idle' ? s : '');
+
+    if (s === 'idle') {
+      btnLabel.textContent = 'Tap to talk';
+      statusText.textContent = 'Ready';
+      endBtn.classList.remove('visible');
+      permNote.style.opacity = '0.6';
+    } else if (s === 'connecting') {
+      btnLabel.textContent = 'Connecting';
+      statusText.textContent = 'Starting conversation...';
+      endBtn.classList.remove('visible');
+    } else if (s === 'listening') {
+      btnLabel.textContent = 'Listening';
+      statusText.textContent = 'Go ahead, I\'m listening';
+      endBtn.classList.add('visible');
+      permNote.style.opacity = '0';
+    } else if (s === 'speaking') {
+      btnLabel.textContent = 'Oryn';
+      statusText.textContent = 'Oryn is speaking...';
+      endBtn.classList.add('visible');
+      permNote.style.opacity = '0';
+    }
+  }
+
+  window.handleTap = async function() {
+    if (state !== 'idle') return;
+    setState('connecting');
+
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch(e) {
+      setState('idle');
+      statusText.textContent = 'Microphone access denied';
+      return;
+    }
+
+    try {
+      conversation = await Conversation.startSession({
+        agentId: AGENT_ID,
+        onConnect: () => {
+          setState('listening');
+        },
+        onDisconnect: () => {
+          conversation = null;
+          setState('idle');
+        },
+        onModeChange: ({ mode }) => {
+          if (mode === 'speaking') setState('speaking');
+          else if (mode === 'listening') setState('listening');
+        },
+        onError: (err) => {
+          console.error(err);
+          setState('idle');
+          statusText.textContent = 'Connection error — try again';
+        }
+      });
+    } catch(e) {
+      setState('idle');
+      statusText.textContent = 'Could not connect — try again';
+      console.error(e);
+    }
+  };
+
+  window.endCall = async function() {
+    if (conversation) {
+      await conversation.endSession();
+      conversation = null;
+    }
+    setState('idle');
+  };
+</script>
 
 </body>
 </html>
